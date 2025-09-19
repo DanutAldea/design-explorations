@@ -9,6 +9,7 @@ use zerocopy::{FromBytes, IntoBytes};
 pub mod dynamic_type;
 pub mod full_dynamic;
 pub mod no_dynamic;
+pub mod trait_based;
 
 pub type ErrorCode = u32;
 

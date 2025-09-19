@@ -14,6 +14,21 @@
   44582	      0	      0	  44582	   ae26	target/riscv32imc-unknown-none-elf/opt-3/examples/complex_no_dynamic
   40168	      0	      0	  40168	   9ce8	target/riscv32imc-unknown-none-elf/opt-s/examples/complex_no_dynamic
   28406	      0	      0	  28406	   6ef6	target/riscv32imc-unknown-none-elf/opt-z/examples/complex_no_dynamic
+  47672	      0	      0	  47672	   ba38	target/riscv32imc-unknown-none-elf/opt-1/examples/complex_trait_based
+  40552	      0	      0	  40552	   9e68	target/riscv32imc-unknown-none-elf/opt-2/examples/complex_trait_based
+  40552	      0	      0	  40552	   9e68	target/riscv32imc-unknown-none-elf/opt-3/examples/complex_trait_based
+  39776	      0	      0	  39776	   9b60	target/riscv32imc-unknown-none-elf/opt-s/examples/complex_trait_based
+  26766	      0	      0	  26766	   688e	target/riscv32imc-unknown-none-elf/opt-z/examples/complex_trait_based
+    256	      0	      0	    256	    100	target/riscv32imc-unknown-none-elf/opt-1/examples/console_full_dynamic
+    232	      0	      0	    232	     e8	target/riscv32imc-unknown-none-elf/opt-2/examples/console_full_dynamic
+    232	      0	      0	    232	     e8	target/riscv32imc-unknown-none-elf/opt-3/examples/console_full_dynamic
+    230	      0	      0	    230	     e6	target/riscv32imc-unknown-none-elf/opt-s/examples/console_full_dynamic
+    234	      0	      0	    234	     ea	target/riscv32imc-unknown-none-elf/opt-z/examples/console_full_dynamic
+    606	      0	      0	    606	    25e	target/riscv32imc-unknown-none-elf/opt-1/examples/console_trait_based
+    378	      0	      0	    378	    17a	target/riscv32imc-unknown-none-elf/opt-2/examples/console_trait_based
+    378	      0	      0	    378	    17a	target/riscv32imc-unknown-none-elf/opt-3/examples/console_trait_based
+    376	      0	      0	    376	    178	target/riscv32imc-unknown-none-elf/opt-s/examples/console_trait_based
+    396	      0	      0	    396	    18c	target/riscv32imc-unknown-none-elf/opt-z/examples/console_trait_based
     146	      0	      0	    146	     92	target/riscv32imc-unknown-none-elf/opt-1/examples/hello_world_dynamic_type
     128	      0	      0	    128	     80	target/riscv32imc-unknown-none-elf/opt-2/examples/hello_world_dynamic_type
     132	      0	      0	    132	     84	target/riscv32imc-unknown-none-elf/opt-3/examples/hello_world_dynamic_type

@@ -45,10 +45,22 @@ impl<B: FromBytes + IntoBytes + ?Sized> Drop for Buffer<B> {
     }
 }
 
+pub trait AllowRo<B: FromBytes + IntoBytes + ?Sized> {
+    fn allow_ro(self: Pin<&mut Self>, driver_num: u32, buffer_num: u32) -> Result<(), ErrorCode>;
+    fn buffer(self: Pin<&Self>) -> Option<&B>;
+    fn unallow(self: Pin<&mut Self>) -> Option<&B>;
+}
+
+pub trait AllowRw<B: FromBytes + IntoBytes + ?Sized> {
+    fn allow_rw(self: Pin<&mut Self>, driver_num: u32, buffer_num: u32) -> Result<(), ErrorCode>;
+    fn buffer_mut(self: Pin<&mut Self>) -> Option<&mut B>;
+    fn unallow(self: Pin<&mut Self>) -> Option<&mut B>;
+}
+
 impl<B: FromBytes + IntoBytes + ?Sized> Buffer<B> {
     // TODO: Try pulling the interior out into its own function that is not
     // generic.
-    pub fn allow(
+    fn allow(
         self: Pin<&mut Self>,
         allow_type: DynamicType,
         driver_num: u32,
@@ -78,24 +90,44 @@ impl<B: FromBytes + IntoBytes + ?Sized> Buffer<B> {
         Ok(())
     }
 
-    pub fn buffer(self: Pin<&Self>) -> Option<&B> {
+    fn unallow(self: Pin<&mut Self>) -> &mut B {
+        let this = unsafe { Pin::into_inner_unchecked(self) };
+        unshare_if_shared(&mut this.shared);
+        &mut this.buffer
+    }
+}
+
+impl<B: FromBytes + IntoBytes + ?Sized> AllowRo<B> for Buffer<B> {
+    fn allow_ro(self: Pin<&mut Self>, driver_num: u32, buffer_num: u32) -> Result<(), ErrorCode> {
+        self.allow(DynamicType::Ro, driver_num, buffer_num)
+    }
+
+    fn buffer(self: Pin<&Self>) -> Option<&B> {
         if self.shared.is_some() {
             return None;
         }
         Some(&self.get_ref().buffer)
     }
 
-    pub fn buffer_mut(self: Pin<&mut Self>) -> Option<&mut B> {
+    fn unallow(self: Pin<&mut Self>) -> Option<&B> {
+        Some(self.unallow())
+    }
+}
+
+impl<B: FromBytes + IntoBytes + ?Sized> AllowRw<B> for Buffer<B> {
+    fn allow_rw(self: Pin<&mut Self>, driver_num: u32, buffer_num: u32) -> Result<(), ErrorCode> {
+        self.allow(DynamicType::Rw, driver_num, buffer_num)
+    }
+
+    fn buffer_mut(self: Pin<&mut Self>) -> Option<&mut B> {
         if self.shared.is_some() {
             return None;
         }
         Some(&mut unsafe { Pin::into_inner_unchecked(self) }.buffer)
     }
 
-    pub fn unallow(self: Pin<&mut Self>) -> &mut B {
-        let this = unsafe { Pin::into_inner_unchecked(self) };
-        unshare_if_shared(&mut this.shared);
-        &mut this.buffer
+    fn unallow(self: Pin<&mut Self>) -> Option<&mut B> {
+        Some(self.unallow())
     }
 }
 
@@ -116,7 +148,7 @@ impl<B: FromBytes + IntoBytes + ?Sized + 'static> From<&'static B> for StaticBuf
     }
 }
 
-impl<B: FromBytes + IntoBytes> Default for StaticBuffer<B> {
+impl<B: FromBytes + IntoBytes + ?Sized> Default for StaticBuffer<B> {
     fn default() -> Self {
         Self {
             _pinned: Default::default(),
@@ -132,8 +164,8 @@ impl<B: FromBytes + IntoBytes + ?Sized> Drop for StaticBuffer<B> {
     }
 }
 
-impl<B: FromBytes + IntoBytes + ?Sized> StaticBuffer<B> {
-    pub fn allow(self: Pin<&mut Self>, driver_num: u32, buffer_num: u32) -> Result<(), ErrorCode> {
+impl<B: FromBytes + IntoBytes + ?Sized> AllowRo<B> for StaticBuffer<B> {
+    fn allow_ro(self: Pin<&mut Self>, driver_num: u32, buffer_num: u32) -> Result<(), ErrorCode> {
         if self.shared.is_some() {
             return Err(3);
         }
@@ -164,16 +196,15 @@ impl<B: FromBytes + IntoBytes + ?Sized> StaticBuffer<B> {
         Ok(())
     }
 
-    pub fn buffer(self: Pin<&Self>) -> Option<&B> {
+    fn buffer(self: Pin<&Self>) -> Option<&B> {
         if self.shared.is_some() {
             return None;
         }
         self.get_ref().buffer_ref
     }
 
-    pub fn unallow(self: Pin<&mut Self>) -> Option<&B> {
+    fn unallow(self: Pin<&mut Self>) -> Option<&B> {
         let this = unsafe { Pin::into_inner_unchecked(self) };
-
         unshare_if_shared(&mut this.shared);
         this.buffer_ref
     }
